@@ -1,0 +1,8 @@
+#extension-init {
+  transition: all 1s;
+  opacity: 0;
+}
+
+#extension-init.show {
+  opacity: 1;
+}

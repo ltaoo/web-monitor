@@ -1,0 +1,56 @@
+{
+   "manifest_version": 2,
+
+   "version": "0.0.1",
+   "name": "Monitor",
+   "short_name": "Monitor",
+   "description": "web monitor",
+
+   "permissions": [
+      "tabs",
+      "storage",
+      "http://*/",
+      "https://*/"
+   ],
+
+   "options_page": "options.html",
+
+   "background": {
+      "persistent": true,
+      "scripts": [ "./src/background.js" ]
+   },
+   "content-scripts": [
+    {
+      "matches": ["http://127.0.0.1:8080/"],
+      "js": ["./src/content.js"]  
+    }
+   ],
+   "browser_action": {
+      "default_icon": {
+         "19": "assets/icons/icon-19.png",
+         "38": "assets/icons/icon-38.png"
+      },
+      "default_popup": "popup.html",
+      "default_title": "Boilerplate"
+   },
+   "chrome_url_overrides": {
+      "newtab": "main.html"
+   },
+   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+   "icons": {
+      "16": "assets/icons/icon-16.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+   },
+   "offline_enabled": true,
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "web_accessible_resources": [ "*" ],
+   "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+F",
+                "mac": "MacCtrl+Shift+F"
+            }
+        }
+    }
+}
