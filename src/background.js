@@ -7,4 +7,6 @@ function add(a, b) {
     return a + b;
 }
 
-// alert('jello');
+setInterval(() => {
+    console.log('hello');
+}, 2000);
