@@ -69,7 +69,7 @@ function ready() {
                 return fetchPage();
             });
     }
-    fetchPage();
+    // fetchPage();
 }
 
 document.addEventListener('DOMContentLoaded', ready);

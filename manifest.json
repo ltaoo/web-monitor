@@ -8,18 +8,18 @@
 
    "permissions": [
       "webRequest",
-		"webRequestBlocking",
+      "webRequestBlocking",
       "storage",
       "http://*/*",
       "https://*/*"
    ],
 
-   "options_page": "options.html",
+   "options_page": "./pages/options.html",
 
    "content_scripts": [
       {
          "matches": ["<all_urls>"],
-         "js": ["jquery.min.js", "./src/diff.js", "./src/content.js"],
+         "js": ["./libs/jquery.min.js", "./src/content.js"],
          "run_at": "document_start",
          "all_frames": true
       }
@@ -33,7 +33,7 @@
          "19": "assets/icons/icon-19.png",
          "38": "assets/icons/icon-38.png"
       },
-      "default_popup": "popup.html",
+      "default_popup": "./pages/popup.html",
       "default_title": "Boilerplate"
    },
    "icons": {
@@ -42,8 +42,8 @@
       "128": "assets/icons/icon-128.png"
    },
    "offline_enabled": false,
+   "homepage_url": "https://github.com/ltaoo/web-monitor",
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "web_accessible_resources": ["./src/content"],
    "commands": {
         "_execute_browser_action": {
             "suggested_key": {
