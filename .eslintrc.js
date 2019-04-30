@@ -9,7 +9,8 @@ module.exports = {
     globals: {
         $: 'readonly',
         chrome: 'readonly',
-        Mustache: 'readonly'
+        Mustache: 'readonly',
+        Vue: 'readonly'
     },
     rules: {
         indent: [2, 4]

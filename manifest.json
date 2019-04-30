@@ -1,10 +1,13 @@
 {
    "manifest_version": 2,
 
-   "version": "0.0.1",
    "name": "Monitor",
+   "version": "0.0.1",
    "short_name": "Monitor",
    "description": "web monitor",
+
+   "homepage_url": "https://github.com/ltaoo/web-monitor",
+   "update_url": "https://clients2.google.com/service/update2/crx",
 
    "permissions": [
       "webRequest",
@@ -15,20 +18,20 @@
       "https://*/*"
    ],
 
-   "options_page": "./pages/options.html",
-
    "content_scripts": [
       {
          "matches": ["<all_urls>"],
          "js": [
              "./libs/jquery.min.js",
              "./libs/mustache.min.js",
+             "./src/runner.js",
              "./src/content.js"
          ],
          "run_at": "document_start",
          "all_frames": true
       }
    ],
+   "options_page": "./pages/options.html",
    "background": {
       "persistent": true,
       "scripts": ["./src/background.js"]
@@ -47,8 +50,7 @@
       "128": "assets/icons/icon-128.png"
    },
    "offline_enabled": false,
-   "homepage_url": "https://github.com/ltaoo/web-monitor",
-   "update_url": "https://clients2.google.com/service/update2/crx",
+   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
    "commands": {
         "_execute_browser_action": {
             "suggested_key": {

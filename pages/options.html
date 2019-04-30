@@ -3,11 +3,20 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title></title>
+    <title>Web-Monitor Options</title>
+    <script src="../libs/vue.js"></script>
+    <script src="../libs/jquery.min.js"></script>
+    <script src="../src/runner.js"></script>
   </head>
   <body>
     <div>
       <h2>Options Page</h2>
+      <div id="root">
+          <input v-model="url" />
+          <textarea v-model="parser"></textarea>
+          <button @click="testFetchContent">click it</button>
+      </div>
     </div>
+    <script src="../src/options.js"></script>
   </body>
 </html>
