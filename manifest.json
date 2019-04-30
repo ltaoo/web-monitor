@@ -20,7 +20,11 @@
    "content_scripts": [
       {
          "matches": ["<all_urls>"],
-         "js": ["./libs/jquery.min.js", "./src/content.js"],
+         "js": [
+             "./libs/jquery.min.js",
+             "./libs/mustache.min.js",
+             "./src/content.js"
+         ],
          "run_at": "document_start",
          "all_frames": true
       }

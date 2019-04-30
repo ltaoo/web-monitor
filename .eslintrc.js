@@ -7,7 +7,9 @@ module.exports = {
         browser: true,
     },
     globals: {
-        $: 'readonly'
+        $: 'readonly',
+        chrome: 'readonly',
+        Mustache: 'readonly'
     },
     rules: {
         indent: [2, 4]
