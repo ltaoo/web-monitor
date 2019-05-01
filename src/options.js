@@ -1,67 +1,22 @@
-function showResult(children) {
-    const keys = Object.keys(children);
-    return keys.map((key) => {
-        const child = children[key];
-        return {
-            key,
-            title: child.title,
-            message: child.message,
-        };
-    });
+/**
+ * https://developers.chrome.com/extensions/richNotifications
+ * https://developer.chrome.com/apps/notifications
+ * https://developers.google.com/web/updates/2017/04/native-mac-os-notifications#chrome_extension_changes
+ */
+
+function uuid() {
+    return UUID.create().toString();
 }
-function translate(results) {
-    return results.reduce((prev, item) => {
-        const res = prev;
-        const { key, ...rest } = item;
-        res[key] = rest;
-        return res;
-    }, {});
-}
+
 /* eslint-disable no-unused-vars */
 const vm = new Vue({
     el: '#root',
     data() {
         return {
+            globalLoading: true,
+            configs: [],
             loading: false,
-            form: {
-                url: 'https://github.com/dashboard-feed',
-                parserCode: `const $container = $(html);
-const cards = $container.children('div');
-const state = {};
-for (let i = 0, l = cards.length; i < l; i += 1) {
-    const $card = $(cards[i]);
-    const titleSelector = 'a[class="link-gray-dark no-underline text-bold wb-break-all d-inline-block"]';
-    const title = removeWhiteSpace($card.find(titleSelector).text());
-    const contentSelector = '.f4';
-    const content = removeWhiteSpace($card.find(contentSelector).text());
-    state[title] = {
-        title,
-        message: content,
-    };
-}
-return state;`,
-                type: 'text',
-                sleep: 5000,
-                notifyCode: `const info = [];
-const { addedNodes, updatedNodes, removedNodes } = updates;
-// 有新增内容
-if (addedNodes.length) {
-    const notification = {};
-    notification.title = 'Github 有新增内容';
-    notification.type = 'list';
-    const items = addedNodes.map(node => {
-        return {
-            title: node.title,
-            message: node.message,
-        };
-    });
-    notification.message = 'hello';
-    notification.items = items.slice(0, 4);
-    info.push(notification);
-}
-return info;
-`,
-            },
+            form: {},
             results: [],
             response: {},
             isMocking: false,
@@ -71,7 +26,28 @@ return info;
             infos: '',
         };
     },
+    mounted() {
+        this.globalLoading = false;
+        chrome.storage.sync.get('webs', ({ webs = [] }) => {
+            console.log(webs);
+            this.configs = webs;
+        });
+    },
     methods: {
+        handleEdit(index, row) {
+            this.form = { ...row };
+        },
+        handleDelete(index, row) {
+            const webs = this.$data.configs;
+            const nextWebs = webs.filter(web => web.page !== row.page);
+            chrome.storage.sync.set({ webs: nextWebs }, () => {
+                this.configs = nextWebs;
+                this.$message({
+                    type: 'success',
+                    message: '删除成功',
+                });
+            });
+        },
         fetch() {
             const { url, parserCode, type } = this.$data.form;
             return new Promise((resolve, reject) => {
@@ -80,14 +56,14 @@ return info;
                     .then(res => res[type]())
                     .then((content) => {
                         /* eslint-disable no-eval */
-                        const func = eval(`
+                        const parser = eval(`
                         ;(function () {
                             function parser(html, { removeWhiteSpace }) {
                                 ${parserCode}
                             }
                             return parser;
                         }())`);
-                        const res = func(content, utils);
+                        const res = parser(content, utils);
                         resolve(res);
                     })
                     .catch((err) => {
@@ -101,7 +77,7 @@ return info;
         testFetchContent() {
             this.fetch()
                 .then((res) => {
-                    this.results = showResult(res);
+                    this.results = res;
                 })
                 .catch((err) => {
                     console.log(err);
@@ -117,8 +93,8 @@ return info;
                     try {
                         console.log(res);
                         this.response = res;
-                        this.results = showResult(res);
-                        this.mockData = showResult(res);
+                        this.results = [...res];
+                        this.mockData = [...res];
                     } catch (err) {
                         console.log(err);
                     }
@@ -127,7 +103,7 @@ return info;
 
                 });
         },
-        handleDelete(index, row) {
+        removeMockRow(index, row) {
             const { mockData } = this.$data;
             this.mockData = mockData.filter(item => item.key !== row.key);
         },
@@ -137,16 +113,24 @@ return info;
         compare() {
             const { notifyCode } = this.$data.form;
             const res = this.response;
-            const creator = eval(`
-            (function() {
-                function foo(updates) {
-                    ${notifyCode}
-                }
-                return foo;
-            }());
-            `);
-            const prevChildren = translate(this.results);
-            const nextChildren = translate(this.mockData);
+            let creator = () => '';
+            try {
+                creator = eval(`
+                (function() {
+                    function foo(updates) {
+                        ${notifyCode}
+                    }
+                    return foo;
+                }());
+                `);
+            } catch (err) {
+                console.log(err);
+            }
+            // const prevChildren = translate(this.results);
+            // const nextChildren = translate(this.mockData);
+            const prevChildren = preDiff(this.results);
+            const nextChildren = preDiff(this.mockData);
+            console.log(prevChildren, nextChildren);
             const { hasUpdate, ...updates } = diff(prevChildren, nextChildren);
             const infos = creator(updates);
             return {
@@ -165,6 +149,43 @@ return info;
             JSON.parse(infos).forEach((info) => {
                 notify(info);
             });
+        },
+        saveConfig() {
+            const { form, configs } = this.$data;
+            const config = { ...form };
+
+            let nextWebs = [];
+            // 如果是新增
+            if (!config.uuid) {
+                config.uuid = uuid();
+                nextWebs = configs.concat(config);
+            } else {
+                nextWebs = configs.map((conf) => {
+                    if (conf.uuid !== config.uuid) {
+                        return conf;
+                    }
+                    return {
+                        ...form,
+                    };
+                });
+            }
+            chrome.storage.sync.set({ webs: nextWebs }, () => {
+                this.configs = nextWebs;
+                this.init();
+                this.$message({
+                    type: 'success',
+                    message: '保存成功',
+                });
+            });
+        },
+        init() {
+            this.form = {};
+            this.results = [];
+            this.response = {};
+            this.isMocking = false;
+            this.mockData = [];
+            this.updates = '';
+            this.infos = '';
         },
     },
 });

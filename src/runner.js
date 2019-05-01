@@ -7,9 +7,23 @@ function removeWhiteSpace(str) {
     return str.replace(/\s/g, '').replace(/↵/g, '');
 }
 
-const utils = {
-    removeWhiteSpace,
-};
+/**
+ * 模板字符串
+ * @param {string} template - 要渲染数据的字符串，如 hello {{name}}
+ * @param {Object} params - 要渲染的数据，如 { name: 'world' }
+ * @return {string} 渲染完成的字符串
+ */
+function render(template, params) {
+    return Mustache.render(template, params);
+}
+
+function preDiff(children) {
+    return children.reduce((prev, item) => {
+        const res = prev;
+        res[item.key] = item;
+        return res;
+    }, {});
+}
 
 /**
  * 新旧内容对比，参考 https://zhuanlan.zhihu.com/p/20346379
@@ -86,6 +100,13 @@ function diff(prevChildren, nextChildren) {
     };
 }
 
+const utils = {
+    removeWhiteSpace,
+    render,
+    preDiff,
+    diff,
+};
+
 /* eslint-disable no-unused-vars */
 const webhook = content => `https://api.telegram.org/bot741609465:AAH_UejPGr6nHtZBhDPmR0kvb_dxb1GtS4c/sendMessage?text=${content}&chat_id=862933116`;
 
@@ -99,47 +120,65 @@ const webhook = content => `https://api.telegram.org/bot741609465:AAH_UejPGr6nHt
  * @param {Array<Object>} [items]
  */
 function notify(params) {
-    chrome.runtime.sendMessage(params);
+    chrome.runtime.sendMessage({ command: 'notify', params });
 }
 
 class Runner {
+    /**
+     * @param {string} page - 只在该页面运行
+     * @param {string} url - 请求地址，如果不填则与 page 相同
+     * @param {string} parserCode - 解析器代码
+     * @param {string} notifyCode - 通知内容生成代码
+     * @param {string} [title] - 该配置标题
+     * @param {string} [type=text] - 解析返回值类型，即 content-type
+     * @param {number} [sleep=5000] - 请求间隔时间
+     * @param {number} [limit=Infinity] - 请求次数限制
+     */
     constructor({
-        title,
+        page,
         url,
-        parser,
+        parserCode,
+        notifyCode,
+        title,
         type = 'text',
         sleep = 5000,
         limit = Infinity,
-        notifyCode,
     }) {
+        /* eslint-disable no-eval */
+        const parser = eval(render(parserTemplate, { code: parserCode }));
+        const creator = eval(render(creatorTemplate, { code: notifyCode }));
+
         this.options = {
             title,
+            page,
             url,
-            parser,
             type,
             sleep,
             limit,
 
-            notifyCode,
+            parser,
+            creator,
         };
     }
 
-    dispatch({ addedNodes, removedNodes, updatedNodes }) {
-        const { title, notifyCode } = this.options;
-        /* eslint-disable no-eval */
-        const notificationCreator = eval(notifyCode);
-        const infos = notificationCreator.call(this, { addedNodes, removedNodes, updatedNodes });
-        for (let i = 0, l = infos.length; i < l; i += 1) {
-            const item = infos[i];
-            notify(item);
+    /**
+     * 开始轮询页面
+     */
+    start() {
+        const { page } = this.options;
+        if (location.href !== page) {
+            return;
         }
+        this.fetchContent();
     }
+
     /**
      * @param {string} - 请求地址 @TODO 需要验证有效性
      * @param {function} - 获取格式化数据，由用户根据页面自定义
      */
     fetchContent() {
         const { url, parser, type, sleep, limit } = this.options;
+        const self = this;
         let times = 0;
         let errorCount = 0;
         let prevChildren = null;
@@ -152,13 +191,13 @@ class Runner {
             fetch(url)
                 .then(res => res[type]())
                 .then((content) => {
-                    const nextChildren = parser(content, utils);
+                    const nextChildren = preDiff(parser(content, utils));
                     console.log(prevChildren, nextChildren);
                     if (prevChildren !== null) {
                         const { hasUpdate, ...updates } = diff(prevChildren, nextChildren);
                         if (hasUpdate) {
                             console.log('has update');
-                            dispatch(updates);
+                            self.dispatch(updates);
                         }
                     }
                     prevChildren = nextChildren;
@@ -175,7 +214,7 @@ class Runner {
                     errorCount += 1;
                     if (errorCount > 3) {
                         notify({
-                            title: '错误提示！',
+                            title: `${self.options.title} - 错误提示`,
                             message: '请求错误次数太多，请检查后重启',
                         });
                         return;
@@ -185,38 +224,27 @@ class Runner {
         }
         run();
     }
-}
 
-/**
- * 生成通知内容
- * @param {string} title
- * @param {Object} change
- */
-// function createNotification() {
-//     const res = [];
-//     const keys = Object.keys(change);
-//     if (keys.length) {
-//         keys.forEach((key) => {
-//             const data = change[key];
-//             res.push({
-//                 title,
-//                 content: data.title,
-//             });
-//         });
-//     }
-//     return res;
-// }
-
-function pug(url, params) {
-    let requestUrl = url;
-    const args = {};
-    if (params) {
-        Object.keys(params).forEach((key) => {
-            /* eslint-disable no-eval */
-            args[key] = eval(params[key]);
-        });
-        requestUrl = Mustache.render(url, args);
+    dispatch({ addedNodes, removedNodes, updatedNodes }) {
+        const { creator } = this.options;
+        /* eslint-disable no-eval */
+        const infos = creator({ addedNodes, removedNodes, updatedNodes });
+        for (let i = 0, l = infos.length; i < l; i += 1) {
+            const item = infos[i];
+            notify(item);
+        }
     }
-    return requestUrl;
 }
 
+const parserTemplate = `;(function () {
+    function parser(html, { removeWhiteSpace }) {
+        {{{code}}}
+    }
+    return parser;
+}())`;
+const creatorTemplate = `;(function() {
+    function creator(updates) {
+        {{{code}}}
+    }
+    return creator;
+}());`;

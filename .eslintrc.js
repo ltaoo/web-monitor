@@ -7,10 +7,11 @@ module.exports = {
         browser: true,
     },
     globals: {
-        $: 'readonly',
         chrome: 'readonly',
+        $: 'readonly',
         Mustache: 'readonly',
         Vue: 'readonly',
+        UUID: 'readonly',
         utils: 'readonly'
     },
     rules: {

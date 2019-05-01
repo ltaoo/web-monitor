@@ -4,12 +4,16 @@ function noop() {}
  * @param {} sender
  * @param {function} callback - sendMessage 的第二个参数
  */
-chrome.runtime.onMessage.addListener(function(request, sender, callback = noop) {
-    const { type, title, message } = request;
-    chrome.notifications.create(null, {
-        type: 'basic',
-        iconUrl: '../assets/icons/icon-48.png',
-        title,
-        message,
-    });
+chrome.runtime.onMessage.addListener((request, sender, callback = noop) => {
+    const { command, params } = request;
+    if (command === 'notify') {
+        const { type = 'basic', title, message } = params;
+        chrome.notifications.create(null, {
+            type,
+            iconUrl: '../assets/icons/icon-48.png',
+            title,
+            message,
+        });
+    }
+    callback();
 });

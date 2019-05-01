@@ -20,3 +20,43 @@ JIRA 的 dashboard 会显示当前用户的 issue，如果有新增 issue ，就
 
 ### 3、新增 DOM or 不确定 DOM ？
 
+
+## chrome extension 开发记录
+
+### storage
+
+```js
+chrome.storage.sync.set({ key1: 'key1 content' }, (data) => {
+    console.log(data); // undefined
+});
+chrome.storage.sync.get('key1', (data) => {
+    console.log(data); // { key1: 'key1 content' }
+});
+```
+
+```js
+chrome.storage.sync.set({
+    key1: 'key1 changed content',
+    key2: 'key2 content',
+}, (data) => {
+    console.log(data); // undefined
+});
+chrome.storage.sync.get('key1', (data) => {
+    console.log(data); // { key1: 'key1 changed content' }
+});
+chrome.storage.sync.get(['key1', 'key2'], (data) => {
+    console.log(data); // { key1: 'key1 changed content', key2: 'key2 content' }
+});
+```
+
+就是以`JSON`形式保存数据，所以`undefined`、`function`等都无法保存。并且可以注意到，`get`方法由于必须传`key`来获取数据，所以是无法获取到「所有」数据的。
+
+## 使用说明
+
+### parserCode
+
+默认会得到`html`变量，该变量在`type === text`时为`string`，`type === json`时为`object`。
+
+## 问题
+
+由于使用了 `eval`，所有可以输入代码的地方都是很危险的，所以绝对不能使用别人给的代码。
