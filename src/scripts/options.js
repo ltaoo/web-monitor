@@ -5,26 +5,22 @@ define([
     './common/template',
     './common/utils',
     './common/notify',
-    './common/configs',
+    // './common/configs',
     './components/ShortContent',
 ], (
     Vue,
     ELEMENT,
-    UUID,
+    uuid,
     templates,
     utils,
     notify,
-    defaultConfigs,
+    // defaultConfigs,
 ) => {
     Vue.use(ELEMENT);
 
     const { render, preDiff, diff } = utils;
     const { parserTemplate, creatorTemplate } = templates;
-    const { weiboConfig } = defaultConfigs;
-
-    function uuid() {
-        return UUID.create().toString();
-    }
+    // const { weiboConfig } = defaultConfigs;
 
     const initialForm = {
         title: undefined,
@@ -44,7 +40,7 @@ define([
         data() {
             return {
                 globalLoading: true,
-                form: weiboConfig,
+                form: initialForm,
                 rules: {
                     title: [
                         {
@@ -98,11 +94,6 @@ define([
                         {
                             required: true,
                             message: '请输入请求间隔时间',
-                            trigger: 'blur',
-                        },
-                        {
-                            min: 5000,
-                            message: '不能低于 5000',
                             trigger: 'blur',
                         },
                     ],
