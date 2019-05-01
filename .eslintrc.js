@@ -12,7 +12,10 @@ module.exports = {
         Mustache: 'readonly',
         Vue: 'readonly',
         UUID: 'readonly',
-        utils: 'readonly'
+        utils: 'readonly',
+        notify: 'readonly',
+        templates: 'readonly',
+        Runner: 'readonly'
     },
     rules: {
         indent: [2, 4]

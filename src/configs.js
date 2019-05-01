@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const githubConfig = {
     page: 'https://github.com/',
     url: 'https://github.com/dashboard-feed',

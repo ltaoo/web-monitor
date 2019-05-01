@@ -123,6 +123,25 @@ function notify(params) {
     chrome.runtime.sendMessage({ command: 'notify', params });
 }
 
+const parserTemplate = `;(function () {
+    function parser(html, { removeWhiteSpace }) {
+        {{{code}}}
+    }
+    return parser;
+}())`;
+const creatorTemplate = `;(function() {
+    function creator(updates) {
+        {{{code}}}
+    }
+    return creator;
+}());`;
+
+const templates = {
+    parserTemplate,
+    creatorTemplate,
+};
+
+
 class Runner {
     /**
      * @param {string} page - 只在该页面运行
@@ -235,16 +254,3 @@ class Runner {
         }
     }
 }
-
-const parserTemplate = `;(function () {
-    function parser(html, { removeWhiteSpace }) {
-        {{{code}}}
-    }
-    return parser;
-}())`;
-const creatorTemplate = `;(function() {
-    function creator(updates) {
-        {{{code}}}
-    }
-    return creator;
-}());`;

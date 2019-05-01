@@ -8,6 +8,13 @@ function uuid() {
     return UUID.create().toString();
 }
 
+const { render, preDiff, diff } = utils;
+
+const {
+    parserTemplate,
+    creatorTemplate,
+} = templates;
+
 /* eslint-disable no-unused-vars */
 const vm = new Vue({
     el: '#root',
@@ -29,7 +36,6 @@ const vm = new Vue({
     mounted() {
         this.globalLoading = false;
         chrome.storage.sync.get('webs', ({ webs = [] }) => {
-            console.log(webs);
             this.configs = webs;
         });
     },
@@ -56,13 +62,7 @@ const vm = new Vue({
                     .then(res => res[type]())
                     .then((content) => {
                         /* eslint-disable no-eval */
-                        const parser = eval(`
-                        ;(function () {
-                            function parser(html, { removeWhiteSpace }) {
-                                ${parserCode}
-                            }
-                            return parser;
-                        }())`);
+                        const parser = eval(render(parserTemplate, { code: parserCode }));
                         const res = parser(content, utils);
                         resolve(res);
                     })
@@ -91,7 +91,6 @@ const vm = new Vue({
             this.fetch()
                 .then((res) => {
                     try {
-                        console.log(res);
                         this.response = res;
                         this.results = [...res];
                         this.mockData = [...res];
@@ -115,14 +114,7 @@ const vm = new Vue({
             const res = this.response;
             let creator = () => '';
             try {
-                creator = eval(`
-                (function() {
-                    function foo(updates) {
-                        ${notifyCode}
-                    }
-                    return foo;
-                }());
-                `);
+                creator = eval(render(creatorTemplate, { code: notifyCode }));
             } catch (err) {
                 console.log(err);
             }
@@ -130,7 +122,6 @@ const vm = new Vue({
             // const nextChildren = translate(this.mockData);
             const prevChildren = preDiff(this.results);
             const nextChildren = preDiff(this.mockData);
-            console.log(prevChildren, nextChildren);
             const { hasUpdate, ...updates } = diff(prevChildren, nextChildren);
             const infos = creator(updates);
             return {
