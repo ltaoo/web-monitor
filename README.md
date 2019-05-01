@@ -53,9 +53,105 @@ chrome.storage.sync.get(['key1', 'key2'], (data) => {
 
 ## 使用说明
 
-### parserCode
+### parserCode - 解析规则
 
 默认会得到`html`变量，该变量在`type === text`时为`string`，`type === json`时为`object`。
+必须要返回数组，并且该数组中对象必须包含`key`、`title`和`message`三个字段。
+
+`key` 字段用来标志该信息的唯一性，判断是更新还是新增。假设存在如下新闻列表：
+
+```js
+{
+    key: '001',
+    title: '今日有雨',
+    message: '经预测今天有雨',
+},
+{
+    key: '002',
+    title: '新闻列表002',
+    message: '新闻列表',
+},
+```
+
+后来发现错误了，将数据修改为：
+
+```js
+{
+    key: '001',
+    title: '今日是晴天',
+    message: '经预测今天是晴天',
+},
+{
+    key: '002',
+    title: '新闻列表002',
+    message: '新闻列表',
+},
+```
+
+如果用户只关心新增内容，这种情况判断是「更新了页面」，就不会得到通知，除非新闻列表是变成了：
+
+```js
+{
+    key: '003',
+    title: '今日是晴天',
+    message: '经预测今天是晴天',
+},
+{
+    key: '002',
+    title: '新闻列表002',
+    message: '新闻列表',
+},
+```
+
+### notifyCode 通知规则
+
+一旦页面发生变更（更新新增或删除），就会根据通知规则生成通知内容。
+默认会得到`updates`变量，有`addedNodes`、`updatedNodes`和`removedNodes`三个`key`，对应的值类型都是数组。
+用户需要从这些变更中筛选出自己关注的内容，组装成通知内容并返回。返回结果必须是数组，每个元素都会发出一条通知。
+
+```js
+// 无论什么变更、变更数量多少，都只发一条通知
+const { addedNodes, updatedNodes, removedNodes } = updates;
+const notifications = [];
+if (addedNodes.length > 0 || updatedNodes.length > 0 || removedNodes.length > 0) {
+    notifications.push({
+        title: '那个网站更新啦',
+        message: '更新内容自己去看啦!',
+    });
+}
+return notifications;
+```
+
+```js
+// 根据变更类型发通知，并且每条变更都发一条通知。
+const { addedNodes, updatedNodes, removedNodes } = updates;
+const notifications = [];
+if (addedNodes.length > 0) {
+    notifications.push(...addedNodes.map((node) => {
+        return {
+            title: '那个网站有新内容',
+            message: '新增' + node.title,
+        };
+    }));
+}
+if (updatedNodes.length > 0) {
+    notifications.push(...addedNodes.map((node) => {
+        return {
+            title: '那个网站更新了已有内容',
+            message: '更新记录' + node.title,
+        };
+    }));
+}
+if (removedNodes.length > 0) {
+    notifications.push(...addedNodes.map((node) => {
+        return {
+            title: '那个网站删除了内容',
+            message: '删除了' + node.title,
+        };
+    }));
+}
+return notifications;
+```
 
 ## 问题
 
