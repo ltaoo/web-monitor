@@ -41,26 +41,16 @@ const globalConfig = {
 document.addEventListener('DOMContentLoaded', () => {
     const { webs } = globalConfig;
     for (let i = 0, l = webs.length; i < l; i += 1) {
-        const web = webs[i];
-        const {
-            url,
-            reqUrl,
-            reqParams,
-            parser,
-            contentType,
-            sleep,
-            limit,
-        } = web;
+        const config = webs[i];
+        const { url, parserCode, reqUrl, reqParams } = config;
         /* eslint-disable no-eval */
-        const func = eval(parser);
+        const parser = eval(parserCode);
         const path = pug(reqUrl, reqParams);
         if (location.href === url) {
             fetchContent({
+                ...config,
                 url: path,
-                parser: func,
-                sleep,
-                limit,
-                type: contentType,
+                parser,
             });
         }
     }

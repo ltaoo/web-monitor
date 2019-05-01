@@ -42,11 +42,11 @@ const utils = {
  */
 function diff(prevChildren, nextChildren) {
     // 移除的节点
-    const removedNodes = {};
+    const removedNodes = [];
     // 新增的节点
-    const addedNodes = {};
+    const addedNodes = [];
     // 更新的节点
-    const updatedNodes = {};
+    const updatedNodes = [];
     let hasUpdate = false;
     // 首先对新集合的节点进行遍历循环
     Object.keys(nextChildren).forEach((name) => {
@@ -60,12 +60,12 @@ function diff(prevChildren, nextChildren) {
             const isEqual = keys.every(key => nextChild[key] === prevChild[key]);
             if (!isEqual) {
                 hasUpdate = true;
-                updatedNodes[name] = nextChild;
+                updatedNodes.push(nextChild);
             }
         } else {
             // 不存在，说明是新增了一个节点
             hasUpdate = true;
-            addedNodes[name] = nextChild;
+            addedNodes.push(nextChild);
         }
     });
     // 对老集合再次遍历
@@ -75,7 +75,7 @@ function diff(prevChildren, nextChildren) {
             prevChildren[name] && !nextChildren[name]
         ) {
             hasUpdate = true;
-            removedNodes[name] = prevChildren[name];
+            removedNodes.push(prevChildren[name]);
         }
     });
     return {
@@ -89,95 +89,123 @@ function diff(prevChildren, nextChildren) {
 /* eslint-disable no-unused-vars */
 const webhook = content => `https://api.telegram.org/bot741609465:AAH_UejPGr6nHtZBhDPmR0kvb_dxb1GtS4c/sendMessage?text=${content}&chat_id=862933116`;
 
-function notify({ title, content }) {
-    chrome.runtime.sendMessage({
+/**
+ * 发出通知，参数见 https://developers.chrome.com/extensions/richNotifications
+ * @param {string} [type=basic] - basic|image|list|progress
+ * @param {string} title
+ * @param {string} message
+ * @param {string} [iconUrl]
+ * @param {string} [imageUrl]
+ * @param {Array<Object>} [items]
+ */
+function notify(params) {
+    chrome.runtime.sendMessage(params);
+}
+
+class Runner {
+    constructor({
         title,
-        message: content,
-    });
+        url,
+        parser,
+        type = 'text',
+        sleep = 5000,
+        limit = Infinity,
+        notifyCode,
+    }) {
+        this.options = {
+            title,
+            url,
+            parser,
+            type,
+            sleep,
+            limit,
+
+            notifyCode,
+        };
+    }
+
+    dispatch({ addedNodes, removedNodes, updatedNodes }) {
+        const { title, notifyCode } = this.options;
+        /* eslint-disable no-eval */
+        const notificationCreator = eval(notifyCode);
+        const infos = notificationCreator.call(this, { addedNodes, removedNodes, updatedNodes });
+        for (let i = 0, l = infos.length; i < l; i += 1) {
+            const item = infos[i];
+            notify(item);
+        }
+    }
+    /**
+     * @param {string} - 请求地址 @TODO 需要验证有效性
+     * @param {function} - 获取格式化数据，由用户根据页面自定义
+     */
+    fetchContent() {
+        const { url, parser, type, sleep, limit } = this.options;
+        let times = 0;
+        let errorCount = 0;
+        let prevChildren = null;
+        function run() {
+            if (times > limit) {
+                return;
+            }
+            times += 1;
+            console.log('fetch times', times);
+            fetch(url)
+                .then(res => res[type]())
+                .then((content) => {
+                    const nextChildren = parser(content, utils);
+                    console.log(prevChildren, nextChildren);
+                    if (prevChildren !== null) {
+                        const { hasUpdate, ...updates } = diff(prevChildren, nextChildren);
+                        if (hasUpdate) {
+                            console.log('has update');
+                            dispatch(updates);
+                        }
+                    }
+                    prevChildren = nextChildren;
+                    if (sleep) {
+                        setTimeout(() => {
+                            run();
+                        }, sleep);
+                    } else {
+                        run();
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    errorCount += 1;
+                    if (errorCount > 3) {
+                        notify({
+                            title: '错误提示！',
+                            message: '请求错误次数太多，请检查后重启',
+                        });
+                        return;
+                    }
+                    run();
+                });
+        }
+        run();
+    }
 }
 
 /**
- *
+ * 生成通知内容
  * @param {string} title
  * @param {Object} change
  */
-function foo(title, change) {
-    const res = [];
-    const keys = Object.keys(change);
-    if (keys.length) {
-        keys.forEach((key) => {
-            const data = change[key];
-            res.push({
-                title,
-                content: data.title,
-            });
-        });
-    }
-    return res;
-}
-
-function dispatch({ addedNodes, removedNodes, updatedNodes }) {
-    let info = [];
-    info = info.concat(foo('Jira 有更新 - 新增', addedNodes));
-    info = info.concat(foo('Jira 有更新 - 移除', removedNodes));
-    info = info.concat(foo('Jira 有更新 - 更新', updatedNodes));
-    for (let i = 0, l = info.length; i < l; i += 1) {
-        const item = info[i];
-        const { title, content } = item;
-        notify({ title, content });
-    }
-}
-
-/**
- * @param {string} - 请求地址 @TODO 需要验证有效性
- * @param {function} - 获取格式化数据，由用户根据页面自定义
- */
-function fetchContent({ url, parser, type = 'text', sleep = 5000, limit = Infinity }) {
-    let times = 0;
-    let errorCount = 0;
-    let prevChildren = null;
-    function run() {
-        if (times > limit) {
-            return;
-        }
-        times += 1;
-        console.log('fetch times', times);
-        fetch(url)
-            .then(res => res[type]())
-            .then((content) => {
-                const nextChildren = parser(content, utils);
-                console.log(prevChildren, nextChildren);
-                if (prevChildren !== null) {
-                    const { hasUpdate, ...updates } = diff(prevChildren, nextChildren);
-                    if (hasUpdate) {
-                        console.log('has update');
-                        dispatch(updates);
-                    }
-                }
-                prevChildren = nextChildren;
-                if (sleep) {
-                    setTimeout(() => {
-                        run();
-                    }, sleep);
-                } else {
-                    run();
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-                errorCount += 1;
-                if (errorCount > 3) {
-                    notify({
-                        title: '错误提示！',
-                        message: '请求错误次数太多，请检查后重启',
-                    });
-                    return;
-                }
-                run();
-            });
-    }
-    run();
-}
+// function createNotification() {
+//     const res = [];
+//     const keys = Object.keys(change);
+//     if (keys.length) {
+//         keys.forEach((key) => {
+//             const data = change[key];
+//             res.push({
+//                 title,
+//                 content: data.title,
+//             });
+//         });
+//     }
+//     return res;
+// }
 
 function pug(url, params) {
     let requestUrl = url;
