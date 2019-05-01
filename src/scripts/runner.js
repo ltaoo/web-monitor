@@ -202,7 +202,7 @@ class Runner {
         let errorCount = 0;
         let prevChildren = null;
         function run() {
-            if (times > limit) {
+            if (limit && times > limit) {
                 return;
             }
             times += 1;
