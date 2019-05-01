@@ -1,9 +1,26 @@
 define([
     'vue',
     'ELEMENT',
-    'scripts/libs/uuid.min.js',
-], (Vue, ELEMENT, UUID) => {
+    './libs/uuid.min',
+    './common/template',
+    './common/utils',
+    './common/notify',
+    './common/configs',
+    './components/ShortContent',
+], (
+    Vue,
+    ELEMENT,
+    UUID,
+    templates,
+    utils,
+    notify,
+    defaultConfigs,
+) => {
     Vue.use(ELEMENT);
+
+    const { render, preDiff, diff } = utils;
+    const { parserTemplate, creatorTemplate } = templates;
+    const { weiboConfig } = defaultConfigs;
 
     function uuid() {
         return UUID.create().toString();
@@ -27,7 +44,7 @@ define([
         data() {
             return {
                 globalLoading: true,
-                form: initialForm,
+                form: weiboConfig,
                 rules: {
                     title: [
                         {
@@ -103,7 +120,6 @@ define([
         },
         mounted() {
             this.globalLoading = false;
-            this.init();
             chrome.storage.sync.get('webs', ({ webs = [] }) => {
                 this.configs = webs;
             });
@@ -124,16 +140,9 @@ define([
                 });
             },
             fetch() {
+                this.loading = true;
                 const { url, parserCode, type } = this.$data.form;
                 return new Promise((resolve, reject) => {
-                    this.loading = true;
-                    // if (!url) {
-                    //     return;
-                    // }
-                    const errorCb = (err) => {
-                        console.log('fetch data failed', err);
-                        reject(err);
-                    };
                     fetch(url)
                         .then(res => res[type](), err => Promise.reject(err))
                         .then((content) => {
@@ -141,9 +150,11 @@ define([
                             const parser = eval(render(parserTemplate, { code: parserCode }));
                             const res = parser(content, utils);
                             console.log('fetch data success', res);
-                            this.loading = false;
                             resolve(res);
-                        }, errorCb)
+                        }, (err) => {
+                            console.log('fetch data failed', err);
+                            reject(err);
+                        })
                         .finally(() => {
                             this.loading = false;
                         });
@@ -153,6 +164,7 @@ define([
                 this.validateForm(['url', 'parserCode'])
                     .then(() => this.fetch())
                     .then((res) => {
+                        console.log('fetch test content success');
                         this.results = res;
                     })
                     .catch((err) => {
@@ -241,7 +253,7 @@ define([
                         }
                         chrome.storage.sync.set({ webs: nextWebs }, () => {
                             this.configs = nextWebs;
-                            this.init();
+                            this.resetForm();
                             this.$message({
                                 type: 'success',
                                 message: '保存成功',
@@ -249,7 +261,7 @@ define([
                         });
                     });
             },
-            init() {
+            resetForm() {
                 this.form = initialForm;
                 this.results = [];
                 this.response = {};
@@ -273,10 +285,12 @@ define([
             },
             validateForm(params) {
                 return new Promise((resolve, reject) => {
-                    const callback = (valid) => {
+                    const callback = (valid, error) => {
                         if (valid) {
-                            resolve(valid);
+                            reject(error);
+                            return;
                         }
+                        resolve(valid);
                     };
                     let validate = 'validate';
                     const args = [

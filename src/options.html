@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Web-Monitor Options</title>
     <link rel="stylesheet" href="styles/element-ui.css">
+    <script data-main="options-entry" src="scripts/libs/require.min.js"></script>
   </head>
   <body>
     <div>
@@ -110,6 +111,9 @@
                             prop="message"
                             label="内容"
                         >
+                            <template slot-scope="scope">
+                                <short-content :content="scope.row.message"></short-content>
+                            </template>
                         </el-table-column>
                     </el-table>
                 </el-form-item>
@@ -232,6 +236,5 @@
             </el-dialog>
         </div>
     </div>
-    <script data-main="options" src="scripts/require.min.js"></script>
   </body>
 </html>
