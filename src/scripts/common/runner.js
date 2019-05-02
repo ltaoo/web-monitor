@@ -1,4 +1,9 @@
-define(['./utils', './template', './notify'], (utils, templates, notify) => {
+define([
+    '../libs/jquery.min',
+    './utils',
+    './template',
+    './notify',
+], ($, utils, templates, notify) => {
     const {
         render,
         preDiff,

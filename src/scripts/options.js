@@ -27,6 +27,7 @@ define([
     const initialForm = {
         title: undefined,
         page: undefined,
+        desc: undefined,
         url: undefined,
         type: 'text',
         parserCode: undefined,
@@ -116,6 +117,7 @@ define([
         mounted() {
             this.globalLoading = false;
             chrome.storage.sync.get('webs', ({ webs = [] }) => {
+                console.log(webs);
                 this.configs = webs;
             });
         },
@@ -246,6 +248,7 @@ define([
                         let nextWebs = [];
                         // 如果是新增
                         if (!config.uuid) {
+                            console.log('create config');
                             config.uuid = uuid();
                             nextWebs = configs.concat(config);
                         } else {
@@ -259,6 +262,7 @@ define([
                             });
                         }
                         chrome.storage.sync.set({ webs: nextWebs }, () => {
+                            console.log('create success', nextWebs);
                             this.configs = nextWebs;
                             this.reset();
                             this.$message({
@@ -298,7 +302,7 @@ define([
                 return new Promise((resolve, reject) => {
                     const callback = (valid, error) => {
                         console.log(valid, error);
-                        if (!valid) {
+                        if (valid) {
                             resolve(valid);
                             return;
                         }
