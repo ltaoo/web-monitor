@@ -1,15 +1,17 @@
 define(['./common/runner'], (Runner) => {
     function noop() {}
 
-    function start(cb) {
+    function start(cb = noop) {
+        console.log('background start');
         chrome.storage.sync.get('webs', ({ webs = [] }) => {
             const container = [];
             for (let i = 0, l = webs.length; i < l; i += 1) {
                 const config = webs[i];
                 const runner = new Runner({ background: true, ...config });
-                runner.start();
+                // runner.start();
                 container.push(runner);
             }
+            window.runners = container;
             cb(container);
         });
     }
@@ -30,10 +32,13 @@ define(['./common/runner'], (Runner) => {
             });
         }
         if (command === 'restart') {
+            console.log('backgournd', command);
             start();
         }
         callback();
     });
+
+    // start();
 
     window.start = start;
 });

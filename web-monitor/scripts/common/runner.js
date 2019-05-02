@@ -101,7 +101,7 @@ define([
                 }
                 console.log('fetch params', params);
                 fetch(url, params)
-                    .then(res => res[type]())
+                    .then(res => res[type](), err => Promise.reject(err))
                     .then((content) => {
                         const nextChildren = preDiff(parser(content, utils));
                         console.log(prevChildren, nextChildren);

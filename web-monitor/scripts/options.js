@@ -264,7 +264,7 @@ define([
                     .then(() => {
                         const { form, configs } = this.$data;
                         const config = { ...form };
-
+                        console.log('当前表单', config);
                         let nextWebs = [];
                         // 如果是新增
                         if (!config.uuid) {
