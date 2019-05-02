@@ -18,6 +18,14 @@ define([
     notify,
     // defaultConfigs,
 ) => {
+    const loader = new SVGLoader(
+        document.getElementById('loader'),
+        {
+            speedIn: 500,
+            easingIn: mina.easeinout,
+        },
+    );
+    loader.show();
     Vue.use(ELEMENT);
 
     const { render, preDiff, diff } = utils;
@@ -123,6 +131,11 @@ define([
                 console.log(webs);
                 this.configs = webs;
             });
+            setTimeout(() => {
+                loader.hide();
+                $('#loader').remove();
+                document.getElementById('root').style = 'visibility: visible;';
+            }, 1000);
         },
         methods: {
             handleEdit(index, row) {

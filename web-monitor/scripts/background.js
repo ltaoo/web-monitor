@@ -38,7 +38,7 @@ define(['./common/runner'], (Runner) => {
         callback();
     });
 
-    // start();
+    start();
 
     window.start = start;
 });

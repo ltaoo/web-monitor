@@ -4,11 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Web-Monitor Options</title>
+    <link rel="stylesheet" href="styles/component.css">
     <link rel="stylesheet" href="styles/element-ui.css">
+    <script src="./scripts/libs/snap.svg.min.js"></script>
+    <script src="./scripts/libs/classie.js"></script>
+    <script src="./scripts/libs/svgLoader.js"></script>
   </head>
   <body>
     <div>
-        <div id="root">
+        <div id="loader" class="pageload-overlay" data-opening="M 40,-65 145,80 -65,80 40,-65" data-closing="m 40,-65 0,0 L -65,80 40,-65">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 80 60" preserveAspectRatio="none">
+                <path d="M 40,-65 145,80 40,-65"/>
+            </svg>
+        </div>
+        <div id="root" style="visibility: hidden;">
             <h2>规则列表</h2>
             <el-table
                 :data="configs"

@@ -29,7 +29,9 @@ module.exports = {
     globals: {
         chrome: 'readonly',
         requirejs: 'readonly',
-        define: 'readonly'
+        define: 'readonly',
+        mina: 'readonly',
+        SVGLoader: 'readonly'
     },
     rules: {
         indent: [2, 4],
