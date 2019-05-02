@@ -18,4 +18,13 @@ module.exports = {
             $: resolve('./src/scripts/libs/jquery.min'),
         },
     },
+    mode: 'development',
+    watchOptions: {
+        ignored: [
+            'options.js',
+            'components',
+            'node_modules',
+        ],
+        poll: 1000,
+    },
 };

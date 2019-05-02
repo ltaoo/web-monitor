@@ -107,6 +107,7 @@ define([
                 visible: false,
                 updates: '',
                 infos: '',
+                originConfigs: [],
             };
         },
         mounted() {
@@ -138,8 +139,17 @@ define([
                         .then(res => res[type](), err => Promise.reject(err))
                         .then((content) => {
                             /* eslint-disable no-eval */
-                            const parser = eval(render(parserTemplate, { code: parserCode }));
+                            let parser = () => {};
+                            try {
+                                parser = eval(render(parserTemplate, { code: parserCode }));
+                            } catch (err) {
+                                reject('解析失败', err);
+                            }
                             const res = parser(content, utils);
+                            if (res === undefined || !Array.isArray(res)) {
+                                reject('解析规则无效');
+                                return;
+                            }
                             console.log('fetch data success', res);
                             resolve(res);
                         }, (err) => {
@@ -152,7 +162,7 @@ define([
                 });
             },
             testFetchContent() {
-                this.validateForm(['url', 'parserCode'])
+                Promise.all([this.$refs.form.validateField('url'), this.$refs.form.validateField('parserCode')])
                     .then(() => this.fetch())
                     .then((res) => {
                         console.log('fetch test content success');
@@ -166,7 +176,8 @@ define([
                 this.results = [];
             },
             mockChildren() {
-                this.validateForm(['url', 'notifyCode'])
+                Promise.all([this.$refs.form.validateField('url'), this.$refs.form.validateField('notifyCode')])
+                // this.validateForm(['url', 'notifyCode'])
                     .then(() => this.fetch())
                     .then((res) => {
                         this.isMocking = true;
@@ -244,7 +255,7 @@ define([
                         }
                         chrome.storage.sync.set({ webs: nextWebs }, () => {
                             this.configs = nextWebs;
-                            this.resetForm();
+                            this.reset();
                             this.$message({
                                 type: 'success',
                                 message: '保存成功',
@@ -252,8 +263,9 @@ define([
                         });
                     });
             },
-            resetForm() {
+            reset() {
                 this.form = initialForm;
+                this.$refs.form.resetFields();
                 this.results = [];
                 this.response = {};
                 this.isMocking = false;
@@ -277,23 +289,29 @@ define([
             validateForm(params) {
                 return new Promise((resolve, reject) => {
                     const callback = (valid, error) => {
-                        if (valid) {
-                            reject(error);
+                        console.log(valid, error);
+                        if (!valid) {
+                            resolve(valid);
                             return;
                         }
-                        resolve(valid);
+                        reject();
                     };
-                    let validate = 'validate';
+                    const validate = 'validate';
                     const args = [
                         callback,
                     ];
-                    if (params) {
-                        validate = 'validateField';
-                        args.unshift(params);
-                    }
-                    // console.log(validate, args);
                     this.$refs.form[validate](...args);
                 });
+            },
+            fetchOriginConfigs() {
+                fetch('https://raw.githubusercontent.com/ltaoo/web-monitor/master/package.json')
+                    .then(res => res.text())
+                    .then((json) => {
+                        console.log(json);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
             },
         },
     });

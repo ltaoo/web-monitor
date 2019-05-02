@@ -4,6 +4,7 @@
     "description": "monite web change",
     "author": "ltaoo",
     "scripts": {
+        "dev": "webpack --watch --progress",
         "bundle": "webpack"
     },
     "dependencies": {},

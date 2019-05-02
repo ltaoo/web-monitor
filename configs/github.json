@@ -1,0 +1,9 @@
+{
+    "title": "Github",
+    "page": "https://github.com/",
+    "url": "https://github.com/dashboard-feed",
+    "parserCode": "const $container = $(html); const cards = $container.children('div'); const state = {}; for (let i = 0, l = cards.length; i < l; i += 1) { const $card = $(cards[i]); const titleSelector = 'a[class=\"link-gray-dark no-underline text-bold wb-break-all d-inline-block\"]'; const title = removeWhiteSpace($card.find(titleSelector).text()); const contentSelector = '.f4'; const content = removeWhiteSpace($card.find(contentSelector).text()); state[title] = { title, message: content, }; } return state;",
+    "notifyCode": "const info = []; const { addedNodes, updatedNodes, removedNodes } = updates; // 有新增内容 if (addedNodes.length) { const notification = {}; notification.title = 'Github 有新增内容'; notification.type = 'list'; const items = addedNodes.map(node => { return { title: node.title, message: node.message, }; }); notification.message = 'hello'; notification.items = items.slice(0, 4); info.push(notification); } return info;",
+    "type": "text",
+    "sleep": 5000
+}

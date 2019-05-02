@@ -71,7 +71,11 @@ define(['./utils', './template', './notify'], (utils, templates, notify) => {
                 }
                 times += 1;
                 console.log('fetch times', times);
-                fetch(url)
+                fetch(url, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                })
                     .then(res => res[type]())
                     .then((content) => {
                         const nextChildren = preDiff(parser(content, utils));

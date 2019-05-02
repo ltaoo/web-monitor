@@ -1,0 +1,12 @@
+{
+    "configs": [
+        {
+            "name": "Github",
+            "filename": "github.json"
+        },
+        {
+            "name": "Weibo",
+            "filename": "weibo.json"
+        }
+    ]
+}

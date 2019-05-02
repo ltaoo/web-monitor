@@ -238,6 +238,10 @@
                     <el-button type="primary" :loading="loading" @click="saveConfig">保存配置</el-button>
                 </el-form-item>
             </el-form>
+            <el-button type="primary" @click="fetchOriginConfigs">获取配置列表</el-button>
+            <ul>
+                <li v-for="config in originConfigs">{{config.name}}</li>
+            </ul>
             <el-dialog
                 title="对比结果"
                 width="60%"

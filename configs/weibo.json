@@ -1,0 +1,10 @@
+{
+    "title": "Weibo",
+    "page": "https://m.weibo.cn/?sudaref=login.sina.com.cn",
+    "url": "https://m.weibo.cn/feed/friends?",
+    "parserCode": "const json = html;\nconst data = json.data;\nconst statuses = data. statuses;\n\nreturn statuses.map(item => {\n    return {\n        key: item.id,\ntitle: item.user. screen_name,\nmessage: item.text,\n    };\n});",
+    "notifyCode": "const { addedNodes, updatedNodes, removedNodes } = updates;\nconst infos = addedNodes.map(node => {\n    return {\n        title: '微博有更新',\n        message: node.title + '有更新' + node.message,\n    };\n});\nreturn infos;",
+    "type": "json",
+    "sleep": 5000,
+    "limit": 100
+}
