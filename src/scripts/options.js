@@ -1,6 +1,7 @@
 define([
     'vue',
     'ELEMENT',
+    'jquery',
     './libs/uuid.min',
     './common/template',
     './common/utils',
@@ -10,6 +11,7 @@ define([
 ], (
     Vue,
     ELEMENT,
+    $,
     uuid,
     templates,
     utils,
@@ -108,6 +110,7 @@ define([
                 updates: '',
                 infos: '',
                 originConfigs: [],
+                fetchOriginConfigsLoading: false,
             };
         },
         mounted() {
@@ -143,7 +146,8 @@ define([
                             try {
                                 parser = eval(render(parserTemplate, { code: parserCode }));
                             } catch (err) {
-                                reject('解析失败', err);
+                                reject('规则失败', err);
+                                return;
                             }
                             const res = parser(content, utils);
                             if (res === undefined || !Array.isArray(res)) {
@@ -162,6 +166,7 @@ define([
                 });
             },
             testFetchContent() {
+                this.isMocking = false;
                 Promise.all([this.$refs.form.validateField('url'), this.$refs.form.validateField('parserCode')])
                     .then(() => this.fetch())
                     .then((res) => {
@@ -263,6 +268,9 @@ define([
                         });
                     });
             },
+            output() {
+                console.log(JSON.stringify(this.$data.form));
+            },
             reset() {
                 this.form = initialForm;
                 this.$refs.form.resetFields();
@@ -304,12 +312,30 @@ define([
                 });
             },
             fetchOriginConfigs() {
-                fetch('https://raw.githubusercontent.com/ltaoo/web-monitor/master/package.json')
+                this.fetchOriginConfigsLoading = true;
+                fetch('https://raw.githubusercontent.com/ltaoo/web-monitor/master/configs/list.json')
                     .then(res => res.text())
                     .then((json) => {
-                        console.log(json);
+                        const { configs } = JSON.parse(json);
+                        this.originConfigs = configs;
+                        this.fetchOriginConfigsLoading = false;
                     })
                     .catch((err) => {
+                        console.log(err);
+                        this.fetchOriginConfigsLoading = false;
+                    });
+            },
+            addOriginConfig(config) {
+                this.fetchOriginConfigsLoading = true;
+                fetch(`https://raw.githubusercontent.com/ltaoo/web-monitor/master/configs/${config.filename}`)
+                    .then(res => res.text())
+                    .then((json) => {
+                        const data = JSON.parse(json);
+                        this.$data.form = data;
+                        this.fetchOriginConfigsLoading = false;
+                    })
+                    .catch((err) => {
+                        this.fetchOriginConfigsLoading = false;
                         console.log(err);
                     });
             },

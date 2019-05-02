@@ -8,7 +8,7 @@ module.exports = {
                     ['vue', './src/scripts/libs/vue'],
                     ['ELEMENT', './src/scripts/libs/element-ui'],
                     ['Mustache', './src/scripts/libs/mustache.min'],
-                    ['$', './src/scripts/libs/jquery.min'],
+                    ['jquery', './src/scripts/libs/jquery.min'],
                 ],
                 extensions: ['.ts', '.js', '.jsx', '.json']
             }

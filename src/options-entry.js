@@ -9,7 +9,7 @@ requirejs.config({
         vue: 'libs/vue',
         ELEMENT: 'libs/element-ui',
         Mustache: 'libs/mustache.min',
-        $: 'libs/jquery.min',
+        jquery: 'libs/jquery.min',
         // 如果在这里有定义，require 时的路径就不一样了
         // 'UUID': 'libs/uuid.min',
         // libs: 'libs',

@@ -236,12 +236,19 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" :loading="loading" @click="saveConfig">保存配置</el-button>
+                    <el-button :loading="loading" @click="output">输出</el-button>
                 </el-form-item>
             </el-form>
-            <el-button type="primary" @click="fetchOriginConfigs">获取配置列表</el-button>
-            <ul>
-                <li v-for="config in originConfigs">{{config.name}}</li>
-            </ul>
+            <h2>获取配置</h2>
+            <div>
+                <el-button type="primary" @click="fetchOriginConfigs">获取配置列表</el-button>
+                <ul>
+                    <li v-for="config in originConfigs">
+                        <span>{{config.name}}</span>
+                        <el-button size="small" @click="addOriginConfig(config)">添加</el-button>
+                    </li>
+                </ul>
+            </div>
             <el-dialog
                 title="对比结果"
                 width="60%"
@@ -252,8 +259,8 @@
                 <h3>原始变更数据</h3>
                 <pre>{{updates}}</pre>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="visible = false">取消</el-button>
-                    <el-button type="primary" @click="notify">发送通知</el-button>
+                    <el-button :loading="fetchOriginConfigsLoading" @click="visible = false">取消</el-button>
+                    <el-button :loading="fetchOriginConfigsLoading" type="primary" @click="notify">发送通知</el-button>
                 </span>
             </el-dialog>
         </div>
