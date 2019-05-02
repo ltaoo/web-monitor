@@ -74,6 +74,28 @@
                 <el-form-item label="请求地址" prop="url">
                     <el-input v-model="form.url" placeholder="请输入获取内容地址（不填则等于监控页面）"></el-input>
                 </el-form-item>
+                <el-form-item label="请求方式" prop="method">
+                    <el-select v-model="form.method" placeholder="请选择">
+                        <el-option
+                            key="get"
+                            label="GET"
+                            value="GET">
+                        </el-option>
+                        <el-option
+                            key="post"
+                            label="POST"
+                            value="POST">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item v-if="form.method === 'POST'" label="body" prop="body">
+                    <el-input
+                        type="textarea"
+                        :rows="3"
+                        v-model="form.body"
+                        placeholder="请输入请求内容"
+                    ></el-input>
+                </el-form-item>
                 <el-form-item label="返回类型" prop="type">
                     <el-select v-model="form.type" placeholder="请选择">
                         <el-option
@@ -248,11 +270,12 @@
                     <el-col :span="8" v-for="config in originConfigs">
                         <el-card class="box-card" shadow="hover">
                             <div slot="header" class="clearfix">
-                                <span>{{config.name}}</span>
+                                <span>{{config.title}}</span>
                                 <el-button style="float: right; padding: 3px 0" type="text" @click="addOriginConfig(config)">添加</el-button>
                             </div>
                             <div>
-                                <span>{{config.desc}}</span>
+                                <p>{{config.desc}}</p>
+                                <p>{{config.page}}</p>
                             </div>
                         </el-card>
                     </el-col>
@@ -271,6 +294,13 @@
                     <el-button :loading="fetchOriginConfigsLoading" @click="visible = false">取消</el-button>
                     <el-button :loading="fetchOriginConfigsLoading" type="primary" @click="notify">发送通知</el-button>
                 </span>
+            </el-dialog>
+            <el-dialog
+                title="配置内容"
+                width="60%"
+                :visible.sync="outputVisible"
+            >
+                {{outputContent}}
             </el-dialog>
         </div>
     </div>

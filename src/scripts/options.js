@@ -30,6 +30,7 @@ define([
         desc: undefined,
         url: undefined,
         type: 'text',
+        method: 'GET',
         parserCode: undefined,
         notifyCode: undefined,
         webhook: undefined,
@@ -112,6 +113,8 @@ define([
                 infos: '',
                 originConfigs: [],
                 fetchOriginConfigsLoading: false,
+                outputVisible: false,
+                outputContent: '',
             };
         },
         mounted() {
@@ -138,9 +141,21 @@ define([
             },
             fetch() {
                 this.loading = true;
-                const { url, parserCode, type } = this.$data.form;
+                const { url, parserCode, type, method, body } = this.$data.form;
+                const params = {};
+                if (method === 'POST') {
+                    params.method = method;
+                    params.headers = method === 'POST' && {
+                        'Content-Type': 'application/json',
+                        'X-Agent': 'Juejin/Web',
+                        'X-Legacy-Device-Id': 1556769478440,
+                        'X-Legacy-Token': 'eyJhY2Nlc3NfdG9rZW4iOiI5ZkdJMmZzUDZZTjJ1dHRjIiwicmVmcmVzaF90b2tlbiI6IkR4dzhpb1BPdUh2dmNGR1YiLCJ0b2tlbl90eXBlIjoibWFjIiwiZXhwaXJlX2luIjoyNTkyMDAwfQ==',
+                        'X-Legacy-Uid': '574d9479a3413100592d330d',
+                    };
+                    params.body = body;
+                }
                 return new Promise((resolve, reject) => {
-                    fetch(url)
+                    fetch(url, params)
                         .then(res => res[type](), err => Promise.reject(err))
                         .then((content) => {
                             /* eslint-disable no-eval */
@@ -176,6 +191,10 @@ define([
                         this.results = res;
                     })
                     .catch((err) => {
+                        this.$message({
+                            type: 'error',
+                            message: err,
+                        });
                         console.log(err);
                     });
             },
@@ -273,7 +292,8 @@ define([
                     });
             },
             output() {
-                console.log(JSON.stringify(this.$data.form));
+                this.outputVisible = true;
+                this.outputContent = JSON.stringify(this.$data.form);
             },
             reset() {
                 this.form = initialForm;
