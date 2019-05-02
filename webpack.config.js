@@ -5,10 +5,15 @@ function resolve(p) {
 }
 
 module.exports = {
-    entry: './src/scripts/content',
+    entry: {
+        content: './src/scripts/content',
+        options: './src/scripts/options',
+        background: './src/scripts/background',
+        popup: './src/scripts/popup',
+    },
     output: {
         path: resolve('./src'),
-        filename: 'content-entry.js',
+        filename: '[name]-entry.js',
     },
     resolve: {
         alias: {

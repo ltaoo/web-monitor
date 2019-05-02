@@ -10,6 +10,12 @@ define(() => {
      */
     function notify(params) {
         chrome.runtime.sendMessage({ command: 'notify', params });
+        // 如果被加载到 popup 中，上面的就不生效了
+        chrome.notifications.create(null, {
+            type: 'basic',
+            iconUrl: '../assets/icons/icon-48.png',
+            ...params,
+        });
     }
 
     return notify;

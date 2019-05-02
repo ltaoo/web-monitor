@@ -29,7 +29,7 @@
     "background": {
         "persistent": true,
         "scripts": [
-            "scripts/background.js"
+            "background-entry.js"
         ]
     },
     "browser_action": {
@@ -38,7 +38,7 @@
             "38": "assets/icons/icon-38.png"
         },
         "default_popup": "popup.html",
-        "default_title": "Boilerplate"
+        "default_title": "Web-Monitor"
     },
     "icons": {
         "16": "assets/icons/icon-16.png",

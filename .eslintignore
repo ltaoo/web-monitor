@@ -1,1 +1,4 @@
 src/scripts/libs/*.js
+content-entry.js
+options-entry.js
+popup-entry.js

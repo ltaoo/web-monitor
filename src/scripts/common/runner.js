@@ -33,17 +33,30 @@ define([
                 creator,
                 ...rest,
             };
+
+            Object.assign(this, rest);
         }
 
         /**
          * 开始轮询页面
          */
         start() {
-            const { page } = this.options;
-            if (location.href !== page) {
-                return;
+            const { page, background } = this.options;
+            if (!background) {
+                if (location.href !== page) {
+                    console.log(location.href);
+                    return;
+                }
             }
+            this.status = true;
             this.fetchContent();
+        }
+
+        /**
+         * 停止轮询
+         */
+        stop() {
+            this.status = false;
         }
 
         /**
@@ -67,6 +80,9 @@ define([
             console.log(this.options);
             function run() {
                 if (limit && times > limit) {
+                    return;
+                }
+                if (self.status === false) {
                     return;
                 }
                 times += 1;
@@ -113,6 +129,7 @@ define([
                                 title: `${self.options.title} - 错误提示`,
                                 message: '请求错误次数太多，请检查后重启',
                             });
+                            self.status = false;
                             return;
                         }
                         run();
@@ -127,8 +144,13 @@ define([
             const infos = creator({ addedNodes, removedNodes, updatedNodes });
             for (let i = 0, l = infos.length; i < l; i += 1) {
                 const item = infos[i];
+                console.log('notify', item);
                 notify(item);
             }
+        }
+
+        toString() {
+            return JSON.stringify(this.options);
         }
     }
     return Runner;

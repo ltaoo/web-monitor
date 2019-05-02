@@ -4,10 +4,26 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>boilerplate</title>
+    <link rel="stylesheet" href="styles/element-ui.css">
   </head>
-  <body>
-    <div>
-      <h3>Popup</h3>
+  <body style="width: 300px;">
+    <div id="root">
+        <el-row>
+            <el-col style="margin-bottom: 10px;" :span="24" v-for="runner in runners">
+                <el-card shadow="hover">
+                    <a target="_blank" :href="runner.page">{{runner.title}}</a>
+                    <el-switch
+                        style="float: right;"
+                        :value="runner.status"
+                        @change="switchStatus(runner)"
+                        active-color="#13ce66"
+                        inactive-color="#ff4949"
+                    >
+                    </el-switch>
+                </el-card>
+            </el-col>
+        </el-row>
     </div>
+    <script src="./popup-entry.js"></script>
   </body>
 </html>

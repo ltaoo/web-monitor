@@ -126,6 +126,7 @@ define([
         },
         methods: {
             handleEdit(index, row) {
+                this.reset();
                 this.form = { ...row };
             },
             handleDelete(index, row) {
