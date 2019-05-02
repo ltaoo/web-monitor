@@ -8,7 +8,11 @@
   </head>
   <body style="width: 300px;">
     <div id="root">
-        <el-row>
+        <div v-if="!runners.length" style="text-align: center;">
+            <i class="el-icon-takeaway-box" style="font-size: 64px; color: #999; font-weight: 100;"></i>
+            <p style="color: #666">配置为空，请前往<a target="_blank" :href="options">配置页</a>增加配置</p>
+        </div>
+        <el-row v-else=>
             <el-col style="margin-bottom: 10px;" :span="24" v-for="runner in runners">
                 <el-card shadow="hover">
                     <a target="_blank" :href="runner.page">{{runner.title}}</a>

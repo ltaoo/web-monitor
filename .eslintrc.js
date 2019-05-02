@@ -1,3 +1,12 @@
+const path = require('path');
+const ROOT = 'web-monitor';
+
+function resolve(...args) {
+    return path.resolve(__dirname, ...args);
+}
+
+const SRC = 'web-monitor';
+
 module.exports = {
     extends: 'airbnb-base',
     plugins: [ 'import' ],
@@ -5,10 +14,10 @@ module.exports = {
         'import/resolver': {
             alias: {
                 map: [
-                    ['vue', './src/scripts/libs/vue'],
-                    ['ELEMENT', './src/scripts/libs/element-ui'],
-                    ['Mustache', './src/scripts/libs/mustache.min'],
-                    ['jquery', './src/scripts/libs/jquery.min'],
+                    ['vue', resolve(SRC, 'scripts/libs/vue')],
+                    ['ELEMENT', resolve(SRC, 'scripts/libs/element-ui')],
+                    ['Mustache', resolve(SRC, 'scripts/libs/mustache.min')],
+                    ['jquery', resolve(SRC, 'scripts/libs/jquery.min')],
                 ],
                 extensions: ['.ts', '.js', '.jsx', '.json']
             }

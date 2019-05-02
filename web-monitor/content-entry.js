@@ -81,19 +81,19 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/scripts/content.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./web-monitor/scripts/content.js");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/scripts/content.js":
-/*!********************************!*\
-  !*** ./src/scripts/content.js ***!
-  \********************************/
+/***/ "./web-monitor/scripts/content.js":
+/*!****************************************!*\
+  !*** ./web-monitor/scripts/content.js ***!
+  \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("\n\n//# sourceURL=webpack:///./src/scripts/content.js?");
+eval("\n\n//# sourceURL=webpack:///./web-monitor/scripts/content.js?");
 
 /***/ })
 

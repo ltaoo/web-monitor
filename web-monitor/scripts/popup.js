@@ -12,7 +12,9 @@ define([
     new Vue({
         el: '#root',
         data() {
+            const page = chrome.runtime.getURL('options.html');
             return {
+                options: page,
                 runners: [],
             };
         },

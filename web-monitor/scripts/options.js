@@ -289,8 +289,12 @@ define([
                                 type: 'success',
                                 message: '保存成功',
                             });
+                            this.restart();
                         });
                     });
+            },
+            restart() {
+                chrome.runtime.sendMessage({ command: 'restart' });
             },
             output() {
                 this.outputVisible = true;

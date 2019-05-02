@@ -4,7 +4,7 @@ function resolve(...args) {
     return path.resolve(__dirname, ...args);
 }
 
-const SRC = 'webMonitor';
+const SRC = 'web-monitor';
 
 module.exports = {
     entry: {
