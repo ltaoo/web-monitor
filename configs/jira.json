@@ -1,11 +1,11 @@
 {
-    "title": "Jira Assign to me",
-    "page": "http://jira.rd.800best.com/secure/Dashboard.jspa",
     "desc": "Jira 分配给我的任务",
-    "url": "http://jira.rd.800best.com/rest/gadget/1.0/issueTable/jql?num=10&tableContext=jira.table.cols.dashboard&addDefault=true&enableSorting=true&paging=true&showActions=true&jql=assignee+%3D+currentUser()+AND+resolution+%3D+unresolved+ORDER+BY+priority+DESC%2C+created+ASC&sortBy=&startIndex=0&_=1556618958624",
-    "type": "json",
     "method": "GET",
+    "notifyCode": "// 根据变更类型发通知，并且每条变更都发一条通知。\nconst { addedNodes, updatedNodes, removedNodes } = updates;\nlet notifications = [];\nif (addedNodes.length > 0) {\n notifications = notifications.concat(addedNodes.map((node) => {\n return {\n title: 'Jira 有新增 Issue',\n message: node.title,\n };\n }));\n}\nif (updatedNodes.length > 0) {\n notifications = notifications.concat(updatedNodes.map((node) => {\n return {\n title: 'Jira 更新已有 Issue',\n message: node.title,\n };\n }));\n}\nif (removedNodes.length > 0) {\n notifications = notifications.concat(removedNodes.map((node) => {\n return {\n title: 'Jira 移除已有 Issue',\n message: node.title,\n };\n }));\n}\nreturn notifications;",
+    "page": "http://jira.rd.800best.com/secure/Dashboard.jspa",
     "parserCode": "const trs = $(html.table).find('tbody tr');\nconst res = [];\nfor (let i = 0, l = trs.length; i < l; i += 1) {\n\tconst $tr = $(trs[i]);\n\tconst key = $tr.attr('rel');\n\tconst title = $tr.find('.summary').text().trim();\n\tconst link = $tr.find('.issue-link').attr('href');\n\tconst message = title;\n\tres.push({\n\t\tkey,\n\t\ttitle,\n\t\tmessage,\n\t});\n}\nreturn res;",
-    "notifyCode":"\nconst { addedNodes, updatedNodes, removedNodes } = updates;\nconst notifications = [];\nif (addedNodes.length > 0) {\n notifications.push(...addedNodes.map((node) => {\n return {\n title: 'Jira 有新增 Issue',\n message: node.title,\n };\n }));\n}\nif (updatedNodes.length > 0) {\n notifications.push(...addedNodes.map((node) => {\n return {\ title: 'Jira 更新已有 Issue',\n message: node.title,\n };\n }));\n}\nif (removedNodes.length > 0) {\n notifications.push(...addedNodes.map((node) => {\n return {\n title: 'Jira 移除已有 Issue',\n message: node.title,\n };\n }));\n}\nreturn notifications;",
-    "sleep": 5000
+    "sleep": 5000,
+    "title": "Jira Assign to me",
+    "type": "json",
+    "url": "http://jira.rd.800best.com/rest/gadget/1.0/issueTable/jql?num=10&tableContext=jira.table.cols.dashboard&addDefault=true&enableSorting=true&paging=true&showActions=true&jql=assignee+%3D+currentUser()+AND+resolution+%3D+unresolved+ORDER+BY+priority+DESC%2C+created+ASC&sortBy=&startIndex=0&_=1556618958624"
 }

@@ -11,6 +11,7 @@ try {
     for (let i = 0, l = files.length; i < l; i += 1) {
         const file = files[i];
         if (!IGNORE.includes(file)) {
+            console.log(file);
             const content = fs.readFileSync(path.join(__dirname, file));
             const { title, desc, page } = JSON.parse(content);
             output.configs.push({
@@ -21,9 +22,9 @@ try {
             });
         }
     }
-    fs.writeFileSync(path.join(__dirname, 'list.json'), JSON.stringify(output));
+    fs.writeFileSync(path.resolve(__dirname, 'list.json'), JSON.stringify(output));
     console.log('create list.json success');
 } catch (err) {
-    console.log('create list.json failed');
+    console.log('create list.json failed', err);
     process.exit(0);
 }
