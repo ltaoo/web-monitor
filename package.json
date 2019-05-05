@@ -5,7 +5,7 @@
     "author": "ltaoo",
     "scripts": {
         "dev": "webpack --watch --progress",
-        "bundle": "webpack"
+        "build": "webpack"
     },
     "husky": {
         "hooks": {
