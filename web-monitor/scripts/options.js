@@ -62,8 +62,8 @@ define([
                         },
                         {
                             min: 1,
-                            max: 10,
-                            message: '长度在 1 到 10 个字符之间',
+                            max: 20,
+                            message: '长度在 1 到 20 个字符之间',
                             trigger: 'blur',
                         },
                     ],
@@ -268,7 +268,9 @@ define([
             },
             notify() {
                 const { infos } = this.$data;
+                console.log(infos);
                 JSON.parse(infos).forEach((info) => {
+                    console.log(info);
                     notify(info);
                 });
             },

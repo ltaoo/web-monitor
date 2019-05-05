@@ -36,6 +36,7 @@ module.exports = {
     rules: {
         indent: [2, 4],
         'import/no-unresolved': [2, { amd: true }],
-        'import/no-amd': [0]
+        'import/no-amd': [0],
+        'linebreak-style': [0]
     }
 };

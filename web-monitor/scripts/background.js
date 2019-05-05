@@ -21,18 +21,21 @@ define(['./common/runner'], (Runner) => {
      * @param {function} callback - sendMessage 的第二个参数
      */
     chrome.runtime.onMessage.addListener((request, sender, callback = noop) => {
+        console.log('background receive message', request);
         const { command, params } = request;
         if (command === 'notify') {
-            const { type = 'basic', title, message } = params;
+            const { type = 'basic', iconUrl = '../assets/icons/icon-48.png', title, message } = params;
             chrome.notifications.create(null, {
                 type,
-                iconUrl: '../assets/icons/icon-48.png',
+                iconUrl,
                 title,
                 message,
             });
         }
+        chrome.notifications.onButtonClicked.addListener(() => {
+            console.log('click it');
+        });
         if (command === 'restart') {
-            console.log('backgournd', command);
             start();
         }
         callback();

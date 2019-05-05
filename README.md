@@ -64,6 +64,18 @@ chrome.storage.sync.get(['key1', 'key2'], (data) => {
 
 ### parserCode - 解析规则
 
+```js
+const json = html;
+const list = json.values;
+return list.map(item => {
+    return {
+        key: item.id,
+        title: item.title,
+        message: item.description,
+    };
+});
+```
+
 默认会得到`html`变量，该变量在`type === text`时为`string`，`type === json`时为`object`。
 必须要返回数组，并且该数组中对象必须包含`key`、`title`和`message`三个字段。
 
@@ -144,7 +156,7 @@ if (addedNodes.length > 0) {
     }));
 }
 if (updatedNodes.length > 0) {
-    notifications.push(...addedNodes.map((node) => {
+    notifications.push(...updatedNodes.map((node) => {
         return {
             title: '那个网站更新了已有内容',
             message: '更新记录' + node.title,
@@ -152,7 +164,7 @@ if (updatedNodes.length > 0) {
     }));
 }
 if (removedNodes.length > 0) {
-    notifications.push(...addedNodes.map((node) => {
+    notifications.push(...removedNodes.map((node) => {
         return {
             title: '那个网站删除了内容',
             message: '删除了' + node.title,

@@ -21,10 +21,9 @@ define([
         mounted() {
             const bgWindow = chrome.extension.getBackgroundPage();
             const start = bgWindow.start;
-            // console.log(bgWindow.runners);
             this.runners = bgWindow.runners || [];
             chrome.runtime.onMessage.addListener((request) => {
-                console.log('pop restart');
+                console.log('popup receive message', request);
                 const { command } = request;
                 if (command === 'restart') {
                     start((runners) => {
